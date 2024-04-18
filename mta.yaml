@@ -1,0 +1,22 @@
+_schema-version: "3.1"
+ID: com.github.marshallbaby.msba
+version: 0.0.1
+description: Training multi-tenant MTA application with Spring Boot and Hibernate
+
+modules:
+  - name: mspa-srv
+    type: java
+    path: srv
+    parameters:
+      buildpack: sap_java_buildpack
+      readiness-health-check-type: http
+      readiness-health-check-http-endpoint: /management/health
+    properties:
+      SPRING_PROFILES_ACTIVE: cloud,sandbox
+      JBP_CONFIG_COMPONENTS: "jres: ['com.sap.xs.java.buildpack.jre.SAPMachineJRE']"
+      JBP_CONFIG_SAP_MACHINE_JRE: '{ use_offline_repository: false, version: 17.+ }'
+    build-parameters:
+      builder: custom
+      commands:
+        - mvn clean package -DskipTests=true
+      build-result: target/*-exec.jar
