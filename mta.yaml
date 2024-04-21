@@ -17,6 +17,7 @@ modules:
       JBP_CONFIG_SAP_MACHINE_JRE: '{ use_offline_repository: false, version: 17.+ }'
     requires:
       - name: mspa-auth
+      - name: mspa-db
     build-parameters:
       builder: custom
       commands:
@@ -55,3 +56,8 @@ resources:
       service: xsuaa
       service-plan: application
       path: ./xs-security.json
+  - name: mspa-db
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: hana
+      service-plan: schema
