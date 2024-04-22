@@ -5,15 +5,13 @@ import com.github.marshallbaby.mspa.repo.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class ShopService {
 
     private final ShopRepository shopRepository;
 
-    public Shop findShop(UUID shopId) {
+    public Shop findShop(Long shopId) {
 
         return shopRepository.findById(shopId)
                 .orElseThrow(() -> new RuntimeException("NOT_FOUND"));
