@@ -47,6 +47,8 @@ modules:
       - name: app-api
         properties:
           url: ${default-url}
+    properties:
+      TENANT_HOST_PATTERN: '^(.*)-mspa.${default-domain}'
 
 
 resources:
@@ -61,3 +63,19 @@ resources:
     parameters:
       service: hana
       service-plan: schema
+  - name: mspa-saas
+    type: org.cloudfoundry.managed-service
+    requires:
+      - name: mspa-auth
+      - name: mspa-srv
+    parameters:
+      service: saas-registry
+      service-plan: application
+      config:
+        xsappname: mspa
+        appName: mspa
+        displayName: Multi-tenant Spring Boot Application
+        appUrls:
+          onSubscription: https://${org}-${space}-mspa-srv.cfapps.us10-001.hana.ondemand.com/callback/v1.0/tenants/{tenantId}
+          onSubscriptionAsync: false
+          onUnSubscriptionAsync: false

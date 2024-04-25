@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.TenantId;
 
 import static jakarta.persistence.EnumType.STRING;
 
@@ -23,5 +24,7 @@ public class Car {
     private Long shopId;
     @Enumerated(STRING)
     private Color color;
+    @TenantId
+    private String tenantId;
 
 }
