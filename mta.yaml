@@ -15,9 +15,11 @@ modules:
       SPRING_PROFILES_ACTIVE: cloud,sandbox
       JBP_CONFIG_COMPONENTS: "jres: ['com.sap.xs.java.buildpack.jre.SAPMachineJRE']"
       JBP_CONFIG_SAP_MACHINE_JRE: '{ use_offline_repository: false, version: 17.+ }'
+      SAP_JWT_TRUST_ACL: '[{"clientid" : "*", "identityzone" : "*"}]'
     requires:
       - name: mspa-auth
       - name: mspa-db
+      - name: mspa-saas
     build-parameters:
       builder: custom
       commands:
@@ -39,7 +41,7 @@ modules:
       - name: srv-api
         group: destinations
         properties:
-          name: srv-api # must be used in xs-app.json as well
+          name: srv-api
           url: ~{srv-url}
           forwardAuthToken: true
       - name: mspa-auth
@@ -47,17 +49,42 @@ modules:
       - name: app-api
         properties:
           url: ${default-url}
+          application: ${app-name}
     properties:
-      TENANT_HOST_PATTERN: '^(.*)-mspa.${default-domain}'
-
+      TENANT_HOST_PATTERN: '^(.*)-${app-name}.${default-domain}'
 
 resources:
   - name: mspa-auth
     type: org.cloudfoundry.managed-service
+    requires:
+      - name: app-api
+    properties:
+      XSAPPNAME: ${xsuaa-app}
     parameters:
-      service: xsuaa
       service-plan: application
-      path: ./xs-security.json
+      service: xsuaa
+      shared: true
+      xsuaa-app: ${space}-~{app-api/application}
+      config:
+        xsappname: ${xsuaa-app}
+        tenant-mode: shared
+        description: Security profile of called application
+        scopes:
+          - name: "$XSAPPNAME.Callback"
+            grant-as-authority-to-apps:
+              - "$XSAPPNAME(application,sap-provisioning,tenant-onboarding)"
+          - name: "$XSAPPNAME.Display"
+            description: Display content
+          - name: "$XSAPPNAME.read"
+            description: With this scope, USER can read products.
+        role-templates:
+          - name: Viewer
+            description: View content
+            scope-references:
+              - "$XSAPPNAME.Display"
+        oauth2-configuration:
+          redirect-uris:
+            - "http*://*.${default-domain}/**"
   - name: mspa-db
     type: org.cloudfoundry.managed-service
     parameters:
@@ -72,7 +99,7 @@ resources:
       service: saas-registry
       service-plan: application
       config:
-        xsappname: mspa
+        xsappname: ~{mspa-auth/XSAPPNAME}
         appName: mspa
         displayName: Multi-tenant Spring Boot Application
         appUrls:

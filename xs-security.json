@@ -2,7 +2,6 @@
   "xsappname": "mspa",
   "tenant-mode": "shared",
   "oauth2-configuration": {
-    "credential-types": ["x509"],
     "redirect-uris" : ["https://*.us10-001.hana.ondemand.com/login/callback" , "https://*.us10-001.hana.ondemand.com/**"]
   },
   "scopes": [

@@ -31,11 +31,10 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authz ->
                         authz.anyRequest().authenticated()
                 )
-                .sessionManagement(httpSecuritySessionManagementConfigurer ->
-                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwtConfigurer ->
-                                jwtConfigurer.jwtAuthenticationConverter(getJwtConverter())));
+                .sessionManagement(sessionConfig ->
+                        sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(
+                        jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(getJwtConverter())));
 
         return http.build();
     }
@@ -53,9 +52,7 @@ public class SecurityConfig {
 
     private Converter<Jwt, AbstractAuthenticationToken> getJwtConverter() {
 
-        TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
-        converter.setLocalScopeAsAuthorities(true);
-        return converter;
+        return new TokenAuthenticationConverter(xsuaaServiceConfiguration);
     }
 
 }
