@@ -1,6 +1,6 @@
 package com.github.marshallbaby.mspa.config.hibernate;
 
-import com.github.marshallbaby.mspa.util.TenantUtil;
+import com.github.marshallbaby.mspa.util.TenantSchemaNameBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
@@ -51,7 +51,7 @@ public class SchemaPerTenantConnectionProvider implements MultiTenantConnectionP
             } else {
 
                 log.info("Setting schema to [{}].", tenantIdAsString);
-                connection.setSchema(TenantUtil.createSchemaName(tenantIdAsString));
+                connection.setSchema(TenantSchemaNameBuilder.buildSchemaName(tenantIdAsString));
 
             }
 

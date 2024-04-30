@@ -1,7 +1,7 @@
 package com.github.marshallbaby.mspa.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.marshallbaby.mspa.service.TenantProvisioningService;
+import com.github.marshallbaby.mspa.service.subscribtion.TenantProvisioningService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,7 @@ public class TenantProvisioningController {
     public String onSubscription(@PathVariable String tenantId, @RequestBody JsonNode requestBody) {
 
         log.info("Handling subscription callback for tenant: [{}].", tenantId);
-        return tenantProvisioningService.onSubscription(requestBody);
+        return tenantProvisioningService.onSubscription(requestBody, tenantId);
     }
 
     @DeleteMapping
