@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,11 +29,15 @@ public class SecurityConfig {
     @Profile("cloud")
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests(authz ->
-                        authz.anyRequest().authenticated()
-                )
-                .sessionManagement(sessionConfig ->
-                        sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        http
+                .sessionManagement(conf -> conf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/callback/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/*/*").hasAuthority("read")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/*/*").hasAuthority("write")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/*/*").hasAuthority("write")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/*/*").hasAuthority("write")
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(
                         jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(getJwtConverter())));
 
@@ -52,7 +57,9 @@ public class SecurityConfig {
 
     private Converter<Jwt, AbstractAuthenticationToken> getJwtConverter() {
 
-        return new TokenAuthenticationConverter(xsuaaServiceConfiguration);
+        TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
+        converter.setLocalScopeAsAuthorities(true);
+        return converter;
     }
 
 }
