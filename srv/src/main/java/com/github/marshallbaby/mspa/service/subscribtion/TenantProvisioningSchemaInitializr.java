@@ -1,6 +1,5 @@
 package com.github.marshallbaby.mspa.service.subscribtion;
 
-import com.github.marshallbaby.mspa.exception.InvalidTenantIdException;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
@@ -61,7 +60,7 @@ public class TenantProvisioningSchemaInitializr {
         if (!isValid) {
 
             String message = format("Invalid tenant id: [%s]", tenantId);
-            throw new InvalidTenantIdException(message);
+            throw new IllegalStateException(message);
         }
     }
 
